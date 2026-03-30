@@ -24,14 +24,13 @@ module.exports = (io, socket) => {
     }
   });
 
-  // NEW: Logic to fetch old notifications when they log in
   socket.on("get_my_notifications", async () => {
     try {
-      // You can add a 'getNotificationsByUser' function to your dbService later
-      // const list = await db.getNotificationsByUser(socket.user.id);
-      // socket.emit("notifications_list", list);
+      const list = await db.getNotificationsByUser(socket.user.id);
+      socket.emit("notifications_list", list);
     } catch (err) {
-       console.error(err);
+      console.error(err);
+      socket.emit("error", { message: "Could not load notifications" });
     }
   });
 };

@@ -1,32 +1,27 @@
-const express = require("express")
+const express = require("express");
 const http = require("http");
-const {Server} = require("socket.io");
 const cors = require("cors");
 require("dotenv").config();
 
+// 1. Import your custom socket initializer
+const initSocket = require("../socket/socket"); 
 
-
-const app = express()
+const app = express();
 const server = http.createServer(app);
-const io = new Server(server, {
-  cors:{
-    origin:"*",
-  }
-});
+
+// 2. Initialize your sockets with the logic we wrote earlier
+// This replaces the 'const io = new Server(...)' you had here
+const io = initSocket(server); 
 
 app.use(cors());
 app.use(express.json());
 
-io.on("connection", (socket) =>{
-  console.log("A user connected:", socket.id);
-
-  socket.on("disconnect", () =>{
-    console.log("User disconnected");
-  });
+// 3. (Optional) Add a basic test route
+app.get("/", (req, res) => {
+  res.send("Examlee Backend is Running!");
 });
 
-const PORT= process.env.PORT || 5000;
-server.listen(PORT, ()=>{
-  console.log(`Server running on port ${PORT}`);
+const PORT = process.env.PORT || 5000;
+server.listen(PORT, () => {
+  console.log(`🚀 Server running on port ${PORT}`);
 });
-

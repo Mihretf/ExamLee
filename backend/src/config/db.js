@@ -1,5 +1,4 @@
-const { param } = require('framer-motion/client');
-const{Pool} = require('pg');
+const { Pool } = require('pg');
 require('dotenv').config();
 
 const pool = new Pool({

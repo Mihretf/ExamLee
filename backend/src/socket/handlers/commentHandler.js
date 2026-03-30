@@ -8,7 +8,7 @@ module.exports = (io, socket) => {
     socket.join(examRoom(examId));
   });
 
-  // 2. Post a comment
+  // 2. Post a comment (Existing Logic)
   socket.on("post_comment", async (data) => {
     const { examId, content } = data || {};
     const userId = socket.user.id;
@@ -27,9 +27,11 @@ module.exports = (io, socket) => {
 
       const newComment = await db.createComment(examId, userId, content.trim());
 
+      // Public broadcast to the exam room
       io.to(examRoom(examId)).emit("receive_comment", newComment);
 
-      if (userId !== examOwnerId) {
+      // Private notification to owner
+      if (Number(userId) !== Number(examOwnerId)) {
         const notif = await db.createNotification(
           examOwnerId,
           userId,
@@ -42,6 +44,22 @@ module.exports = (io, socket) => {
     } catch (err) {
       console.error("Database error while saving comment:", err);
       socket.emit("error", { message: "Could not save comment" });
+    }
+  });
+
+  // 3. NEW: Fetch Notification History (The "Inbox" logic)
+  socket.on("get_notifications", async () => {
+    try {
+      const userId = socket.user.id;
+      // Pull history from DB
+      const notifications = await db.getNotificationsByUser(userId);
+      
+      // Send the list back ONLY to the requesting user
+      socket.emit("notifications_list", notifications);
+      console.log(`📦 History: Sent ${notifications.length} notifications to User ${userId}`);
+    } catch (err) {
+      console.error("Error fetching notifications:", err);
+      socket.emit("error", { message: "Failed to load notification history" });
     }
   });
 };

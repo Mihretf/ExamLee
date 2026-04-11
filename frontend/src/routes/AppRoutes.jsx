@@ -1,7 +1,7 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import Exams from '../pages/Exams'
 import Home from '../pages/Home'
-import LandingPage from '../pages/landingPage'
+import LandingPage from '../pages/landingPage/LandingPage'
 import Login from '../pages/Login'
 import Notifications from '../pages/Notifications'
 import Profile from '../pages/Profile'

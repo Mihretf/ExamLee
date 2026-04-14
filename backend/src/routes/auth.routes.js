@@ -29,4 +29,22 @@ router.post('/signup', async (req, res) => {
     res.status(400).json({ error: err.message });
   }
 });
+router.post('/login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    
+    // Call the login method from our service
+    const data = await authService.login(email, password);
+    
+    // If successful, send back the token and user info
+    res.json({
+      message: "Login successful!",
+      token: data.token,
+      user: data.user
+    });
+  } catch (err) {
+    res.status(401).json({ error: err.message });
+  }
+});
+
 module.exports = router;

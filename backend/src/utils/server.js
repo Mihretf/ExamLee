@@ -2,21 +2,19 @@ const express = require("express");
 const http = require("http");
 const cors = require("cors");
 require("dotenv").config();
-
-// 1. Import your custom socket initializer
-const initSocket = require("../socket/socket"); 
+const initSocket = require("../socket/socket"); // Double check your path here!
 
 const app = express();
 const server = http.createServer(app);
-
-// 2. Initialize your sockets with the logic we wrote earlier
-// This replaces the 'const io = new Server(...)' you had here
 const io = initSocket(server); 
 
 app.use(cors());
 app.use(express.json());
 
-// 3. (Optional) Add a basic test route
+// --- ADD THIS LINE HERE ---
+app.use('/api/auth', require('../routes/auth.routes')); 
+// --------------------------
+
 app.get("/", (req, res) => {
   res.send("Examlee Backend is Running!");
 });

@@ -2,12 +2,18 @@ const express = require('express');
 const router = express.Router();
 const authService = require('../services/authService');
 
-// POST /api/auth/signup
 router.post('/signup', async (req, res) => {
   try {
-    const { username, email, password, department, student_year } = req.body;
-    
-    // Basic validation
+    console.log("Incoming Data:", req.body);
+
+    // Explicitly pull everything out
+    const username = req.body.username;
+    const email = req.body.email;
+    const password = req.body.password;
+    const department = req.body.department;
+    const student_year = req.body.student_year;
+    const role = req.body.role || 'student'; // Fallback to student if empty
+
     if (!username || !email || !password) {
       return res.status(400).json({ error: "Missing required fields" });
     }
@@ -17,18 +23,23 @@ router.post('/signup', async (req, res) => {
       email, 
       password, 
       department, 
-      student_year
+      student_year,
+      role 
     );
     
-    res.status(201).json({ message: "Student registered successfully!", user });
+    // Using user.role (from the DB response) is safer than the 'role' variable
+    res.status(201).json({ 
+      message: `${user.role} registered successfully!`, 
+      user 
+    });
+
   } catch (err) {
-    // Handle duplicate email/username errors specifically
-    if (err.code === '23505') {
-      return res.status(400).json({ error: "Username or Email already exists" });
-    }
+    console.error("Signup Error:", err);
     res.status(400).json({ error: err.message });
   }
 });
+
+// Login remains the same...
 router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -40,7 +51,13 @@ router.post('/login', async (req, res) => {
     res.json({
       message: "Login successful!",
       token: data.token,
-      user: data.user
+      user: {
+        id: data.user.id,
+        username: data.user.username,
+        role: data.user.role,
+        department: data.user.department,
+        student_year: data.user.student_year
+      }
     });
   } catch (err) {
     res.status(401).json({ error: err.message });

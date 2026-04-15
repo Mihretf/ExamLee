@@ -5,16 +5,16 @@ const router = require('../routes/auth.routes');
 
 const authService = {
   // Updated to include department and student_year
-  register: async (username, email, password, department, student_year) => {
+  register: async (username, email, password, department, student_year, role) => {
     // 1. Hash the password (Security first!)
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
     // 2. Insert into DB with the new columns
     const query = `
-      INSERT INTO users (username, email, password_hash, department, student_year) 
-      VALUES ($1, $2, $3, $4, $5) 
-      RETURNING id, username, email, department, student_year
+      INSERT INTO users (username, email, password_hash, department, student_year, role) 
+      VALUES ($1, $2, $3, $4, $5, $6) 
+      RETURNING id, username, email, department, student_year, role
     `;
     
     const result = await pool.query(query, [
@@ -22,7 +22,8 @@ const authService = {
       email, 
       hashedPassword, 
       department, 
-      student_year
+      student_year,
+      role || 'student'
     ]);
 
     return result.rows[0];
@@ -39,7 +40,7 @@ const authService = {
     if (!isMatch) throw new Error("Invalid credentials");
 
     const token = jwt.sign(
-      { id: user.id, username: user.username },
+      { id: user.id, username: user.username, role: user.role, department: user.department, student_year: user.student_year },
       process.env.JWT_SECRET,
       { expiresIn: '7d' }
     );
@@ -49,6 +50,7 @@ const authService = {
       user: { 
         id: user.id, 
         username: user.username, 
+        role: user.role,
         email: user.email,
         department: user.department,
         student_year: user.student_year

@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const authService = require('../services/authService');
 
+
 router.post('/signup', async (req, res) => {
   try {
     console.log("Incoming Data:", req.body);

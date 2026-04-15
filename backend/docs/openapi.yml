@@ -1,0 +1,178 @@
+info:
+  title: ExamLee API
+  version: 1.0.0
+  description: |
+    ## Real-Time Events (WebSockets)
+    ExamLee uses Socket.io for real-time interactions. All events require authentication via the `protect` middleware logic during the handshake.
+
+    ### 🔑 Connection & Authentication (Handshake)
+    To connect to the socket server, you must provide a valid JWT. The server checks two locations:
+    1.  **Auth Object**: `auth: { token: "YOUR_JWT" }` (Recommended for Production)
+    2.  **Query String**: `?token=YOUR_JWT` (Useful for testing/Postman)
+
+    Upon successful connection, the user is automatically joined to a private room:
+    - **Room Name**: `user_{userId}`
+
+    ### 🟢 Events to Emit (Frontend -> Backend)
+    - **`join_exam`**: Join a room for a specific exam.
+      - Payload: `examId` (integer)
+    - **`post_comment`**: Submit a new comment.
+      - Payload: `{ examId: integer, content: string }`
+    - **`get_notifications`**: Request your notification history.
+      - Payload: `none`
+
+    ### 🔴 Events to Listen For (Backend -> Frontend)
+    - **`receive_comment`**: Received by everyone in the exam room.
+      - Data: `CommentObject` (id, content, userId, created_at)
+    - **`new_notification`**: Received by the exam owner.
+      - Data: `NotificationObject`
+    - **`notifications_list`**: Response to `get_notifications`.
+      - Data: `Array<NotificationObject>`
+    - **`error`**: Error messages.
+      - Data: `{ message: string }`
+    ### 🟡 Notification Events (Socket.io)
+    - **`send_notification`**: Manually trigger a notification to another user.
+      - Payload: 
+          targetUserId: integer (ID of the recipient)
+          actionType: string (e.g., "NEW_COMMENT", "LIKE")
+          targetId: integer (ID of the related Exam)
+    - **`get_my_notifications`**: Fetch all unread/past notifications for the logged-in user.
+      - Payload: `none`
+    
+    ### 🔴 Events to Listen For
+    - **`new_notification`**: Real-time alert when someone interacts with your content.
+      - Data: `NotificationObject { id, actorId, actionType, targetId, created_at }`
+    - **`notifications_list`**: The response containing the user's notification history.
+      - Data: `Array<NotificationObject>`
+    ### 🔵 Reaction Events (Socket.io)
+    - **`toggle_reaction`**: Add or remove an emoji reaction.
+      - Payload: `{ examId: integer, emoji: string }`
+    - **`fetch_reactions`**: Get current reaction counts for an exam (e.g., when opening a page).
+      - Payload: `examId` (integer)
+
+    ### 🔴 Events to Listen For
+    - **`reaction_updated`**: Broadcast to all users watching the exam when any reaction changes.
+      - Data: `{ examId: integer, reactions: object, counts: object }`
+    - **`reaction_state`**: Direct response to `fetch_reactions`.
+      - Data: `{ examId: integer, reactions: object }`
+    
+paths:
+  # --- AUTH ROUTES ---
+  /api/auth/signup:
+    post:
+      tags: [Auth]
+      summary: Register a new student or admin
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserSignup'
+      responses:
+        201:
+          description: Created
+
+  /api/auth/login:
+    post:
+      tags: [Auth]
+      summary: Login to get JWT Token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email: { type: string, example: "barnabas@aau.edu.et" }
+                password: { type: string, example: "password123" }
+      responses:
+        200:
+          description: OK
+  # --- USER ROUTES ---
+  /api/users/me:
+    get:
+      tags: [Users]
+      summary: Get current user profile
+      description: Returns the profile data of the authenticated user based on the JWT.
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: User profile retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        404:
+          description: User not found
+
+    put:
+      tags: [Users]
+      summary: Update user profile
+      description: Allows a student to update their department or academic year.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                department: { type: string, example: "Software Engineering" }
+                student_year: { type: integer, example: 3 }
+      responses:
+        200:
+          description: Profile updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+
+  # --- EXAM ROUTES ---
+  /api/exams/search:
+    get:
+      tags: [Exams]
+      summary: Search exams by keyword or department
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: q
+          in: query
+          schema: { type: string }
+        - name: department
+          in: query
+          schema: { type: string }
+      responses:
+        200:
+          description: Success
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    UserSignup:
+      type: object
+      required: [username, email, password]
+      properties:
+        username: { type: string }
+        email: { type: string }
+        password: { type: string }
+        department: { type: string }
+        student_year: { type: integer }
+    UserResponse:
+      type: object
+      properties:
+        status: { type: string, example: "success" }
+        data:
+          type: object
+          properties:
+            id: { type: integer }
+            username: { type: string }
+            email: { type: string }
+            department: { type: string }
+            student_year: { type: integer }
+            created_at: { type: string, format: date-time }

@@ -37,7 +37,7 @@ router.get('/feed', protect, async (req, res) => {
 // @access  Private
 router.get('/search', protect, async (req, res) => {
     try {
-        const { q, department, type } = req.query;
+        const { q, department, type, year, instructor } = req.query;
         
         // Basic dynamic search logic
         let queryText = 'SELECT * FROM exams WHERE 1=1';
@@ -53,13 +53,47 @@ router.get('/search', protect, async (req, res) => {
             queryText += ` AND department = $${queryParams.length}`;
         }
 
+        if (year) {
+            queryParams.push(parseInt(year));
+            queryText += ` AND student_year = $${queryParams.length}`;
+        }
+
+        if (type) {
+            queryParams.push(type);
+            queryText += ` AND exam_type = $${queryParams.length}`;
+        }
+
+        if (instructor) {
+            queryParams.push(`%${instructor}%`);
+            queryText += ` AND instructor ILIKE $${queryParams.length}`;
+        }
+
+        queryText+= ' ORDER BY created_at DESC ';
+
+        console.log("Executing Query:", queryText);
+        console.log("With Params:", queryParams);
+        
         const results = await pool.query(queryText, queryParams);
+
+        if (results.rows.length === 0) {
+            return res.status(200).json({
+                status: "success",
+                message: "No exams matched your search criteria.",
+                count: 0,
+                data: []
+            });
+        }
+
+        const rowCount = (results && results.rows) ? results.rows.length : 0;
+        const data = (results && results.rows) ? results.rows : [];
 
         res.json({
             status: "success",
-            data: results.rows
+            count: rowCount,
+            data: data
         });
     } catch (err) {
+        console.error("Search Error:", err.message);
         res.status(500).json({ error: "Search failed" });
     }
 });

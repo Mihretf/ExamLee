@@ -1,6 +1,7 @@
 import HeroSection from './HeroSection';
 import HowItWorks from './HowItWorks';
 import NavBar from './NavBar'
+import WhyUs from './WhyUs';
 
 
 function LandingPage() {
@@ -10,6 +11,7 @@ function LandingPage() {
     <NavBar />
     <HeroSection/>
     <HowItWorks/>
+    <WhyUs/>
   </div>
   
 )

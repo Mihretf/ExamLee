@@ -13,8 +13,8 @@ function Fotter() {
 	const navigate = useNavigate();
 
 	return (
-		<footer className="relative mt-12 overflow-hidden border-t-2 border-dashed border-primary/40 bg-gradient-to-br from-secondary via-white to-secondary/70 px-4 py-12 sm:px-8">
-			<div className="mx-auto flex w-full max-w-6xl flex-col gap-8 rounded-3xl sm:p-8">
+		<footer className="relative mt-12 overflow-hidden border-t-2 border-dashed border-primary/40 bg-gradient-to-br from-secondary via-white to-secondary/70 px-4 py-10 sm:px-8 sm:py-12">
+			<div className="mx-auto flex w-full max-w-6xl flex-col gap-7 rounded-3xl sm:gap-8 sm:p-8">
 				<div className="flex flex-col items-start justify-between gap-6 md:flex-row md:items-center">
 					<div className="max-w-xl space-y-2">
 						<p className="font-poppins text-xs font-semibold uppercase tracking-[0.2em] text-primary/80">
@@ -28,16 +28,16 @@ function Fotter() {
 						</p>
 					</div>
 
-					<div className="flex flex-wrap gap-3">
+					<div className="grid w-full grid-cols-1 gap-3 sm:flex sm:w-auto sm:flex-wrap">
 						<SubButton
 							text="Sign Up"
 							onClick={() => navigate('/signup')}
-							className="!px-6 !py-2"
+							className="w-full justify-center !px-6 !py-2 sm:w-auto"
 						/>
 						<SubButton
 							text="Browse Exams"
-							onClick={() => navigate('/browse-exams')}
-							className="!px-6 !py-2"
+							onClick={() => navigate('/exams')}
+							className="w-full justify-center !px-6 !py-2 sm:w-auto"
 						/>
 					</div>
 				</div>

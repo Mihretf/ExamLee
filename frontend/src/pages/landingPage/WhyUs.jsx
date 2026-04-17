@@ -7,7 +7,7 @@ import image4 from '../../assets/image-4-lee.svg'
 function WhyUs () {
 
     return (
-        <div className="how-it-works flex flex-col items-center gap-28 px-4 py-12 font-poppins md:px-8 lg:px-16">
+        <div className="how-it-works flex flex-col items-center gap-8 px-4 py-12 font-poppins sm:gap-10 md:gap-14 md:px-8 lg:px-16">
             <h3 className="text-yellow-500 font-poppins text-2xl font-bold sm:text-3xl">Why Choose Us?</h3>
          <FeatureCard title={"Verified Exams"} description={"All exams are verified by our team to ensure authenticity and relevance."} imageSrc={image1} />
          <FeatureCard title={"Campus-Specific"} description={"Find exams specific to your campus and courses for targeted preparation."} imageSrc={image2} side={"right"} />

@@ -7,11 +7,13 @@ function FeatureCard({
   className = "",
 }) {
   const isRightSided = side === "right";
-  const verticalAlternateClass = isRightSided ? "self-end" : "self-start";
+  const verticalAlternateClass = isRightSided
+    ? "self-center md:self-end"
+    : "self-center md:self-start";
 
   return (
     <article
-      className={`w-[60vw]  max-h-[25rem] rounded-2xl border-2 border-dashed border-primary bg-secondary px-4 py-5 sm:px-6 sm:py-6 md:px-7 md:py-7 ${verticalAlternateClass} ${className}`}
+      className={`w-full sm:w-[90vw] lg:w-[60vw] min-h-[18rem] rounded-2xl border-2 border-dashed border-primary bg-secondary px-4 py-5 sm:px-6 sm:py-6 md:px-7 md:py-7 ${verticalAlternateClass} ${className}`}
     >
       <div
         className={`flex flex-col items-center gap-4 md:gap-6 ${
